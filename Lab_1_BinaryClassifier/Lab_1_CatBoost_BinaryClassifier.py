@@ -11,15 +11,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
-
 from sklearn import ensemble
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-
-from tensorflow.keras.utils import to_categorical
-from keras import models
-from keras import layers
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report
 
 # Commented out IPython magic to ensure Python compatibility.
 # %%capture
@@ -46,14 +43,6 @@ names = ['Surname_tfidf_0', 'Surname_tfidf_1', 'Surname_tfidf_3', 'Surname_tfidf
 for name in names:
     df_valid[name] = pd.factorize(df_valid[name])[0]
 df_valid.head()
-
-pip install catboost
-
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
-
 
 X = df.drop(columns=['Exited', 'Surname_tfidf_0', 'Surname_tfidf_1', 'Surname_tfidf_3', 'Surname_tfidf_2', 'Surname_tfidf_4', 'Cred_Bal_Sal', 'Bal_sal', 'Tenure_Age', 'EstimatedSalary'])
 y = df['Exited']
@@ -131,30 +120,22 @@ df['Cred_Bal_Sal'] = pd.to_numeric(df['Cred_Bal_Sal'], errors='coerce')  # coerc
 df['Bal_sal'] = pd.to_numeric(df['Bal_sal'], errors='coerce')
 df['Tenure_Age'] = pd.to_numeric(df['Tenure_Age'], errors='coerce')
 df['EstimatedSalary'] = pd.to_numeric(df['EstimatedSalary'], errors='coerce')
-
 df_valid['Cred_Bal_Sal'] = pd.to_numeric(df_valid['Cred_Bal_Sal'], errors='coerce')  # coerce errors will convert non-numeric values to NaN
 df_valid['Bal_sal'] = pd.to_numeric(df_valid['Bal_sal'], errors='coerce')
 df_valid['Tenure_Age'] = pd.to_numeric(df_valid['Tenure_Age'], errors='coerce')
 df_valid['EstimatedSalary'] = pd.to_numeric(df_valid['EstimatedSalary'], errors='coerce')
-
 df['Cred_Bal_Sal']= df['CreditScore']*df['Balance']/df['EstimatedSalary']
-
-
 
 X = df.drop(columns=['Exited', 'Surname_tfidf_0', 'Surname_tfidf_1', 'Surname_tfidf_3', 'Surname_tfidf_2', 'Surname_tfidf_4'])
 y = df['Exited']
 X_valid = df_valid.drop(columns=['Exited', 'Surname_tfidf_0', 'Surname_tfidf_1', 'Surname_tfidf_3', 'Surname_tfidf_2', 'Surname_tfidf_4'])
 y_valid = df_valid['Exited']
-
-
 X_train, y_train = X, y
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X)
 X_test_scaled = scaler.transform(X_valid)
-
 model = CatBoostClassifier(max_depth=6, iterations=400, l2_leaf_reg=3, learning_rate=0.1)
 model.fit(X_train_scaled, y_train)
-
 t1 = time.time()
 y_pred = model.predict(X_test_scaled)
 t2 = time.time() - t1
